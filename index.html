@@ -22,7 +22,6 @@
         ::-webkit-scrollbar-thumb { background: #333; }
 
         /* UI Elements */
-        .primary-color { color: #800020; }
         .status-box { background: #111; border-left: 5px solid #ffbf00; padding: 20px; border-radius: 8px; margin-bottom: 10px; }
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
         .card { background: #161616; padding: 20px; border: 1px solid #222; border-radius: 12px; text-align: center; transition: all 0.3s ease; }
@@ -43,7 +42,6 @@
         .chat-input-group { display: flex; gap: 10px; }
         .chat-input-group input { flex: 1; text-align: left; }
         .chat-btn { background: #800020; color: white; border: none; padding: 0 25px; border-radius: 6px; cursor: pointer; font-weight: bold; }
-        .chat-btn:hover { background: #5a0016; }
     </style>
 </head>
 <body>
@@ -182,7 +180,7 @@
         queryInput.value = "";
 
         try {
-            const response = await fetch('//.netlify/functions/chat', {
+            const response = await fetch('/.netlify/functions/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ question: query })
