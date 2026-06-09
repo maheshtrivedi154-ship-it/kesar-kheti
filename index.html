@@ -1,199 +1,318 @@
 <!DOCTYPE html>
-<html lang="gu">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="Kesar Kheti">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="🌸 Kesar Kheti">
     <meta name="theme-color" content="#080808">
-    <meta name="description" content="Indoor Saffron Companion">
+    <meta name="description" content="Indoor Saffron Farming Companion">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icons/icon-192.png">
     <title>🌸 Kesar Kheti</title>
     <style>
         *, *::before, *::after { box-sizing: border-box; }
-        html, body { height: 100%; background-color: #080808; color: #f8f9fa; margin: 0; padding: 15px; font-family: 'Segoe UI', sans-serif; }
-        #app { min-height: 100vh; display: flex; flex-direction: column; gap: 20px; max-width: 900px; margin: 0 auto; }
+        html, body {
+            height: 100%;
+            background-color: #080808;
+            color: #e2e8f0;
+            margin: 0;
+            padding: 12px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+        #app {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            max-width: 500px;
+            margin: 0 auto;
+            position: relative;
+        }
         
         /* Scrollbar */
         ::-webkit-scrollbar { width: 3px; }
         ::-webkit-scrollbar-track { background: #080808; }
-        ::-webkit-scrollbar-thumb { background: #333; }
+        ::-webkit-scrollbar-thumb { background: #1a1a1a; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #262626; }
 
-        /* UI Elements */
-        .status-box { background: #111; border-left: 5px solid #ffbf00; padding: 20px; border-radius: 8px; margin-bottom: 10px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
-        .card { background: #161616; padding: 20px; border: 1px solid #222; border-radius: 12px; text-align: center; transition: all 0.3s ease; }
-        .card.alert-active { border-color: #e74c3c; background-color: #2a1515; box-shadow: 0 0 15px rgba(231, 76, 60, 0.3); }
+        /* UI Base */
+        .card {
+            background-color: #121212;
+            border: 1px solid #1a1a1a;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        .flex { display: flex; align-items: center; justify-content: space-between; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         
-        label { font-weight: bold; display: block; margin-bottom: 10px; color: #ffbf00; }
-        input { width: 100%; padding: 12px; background: #222; border: 1px solid #333; border-radius: 6px; color: #fff; font-size: 16px; text-align: center; }
-        input:focus { border-color: #ffbf00; outline: none; }
-        .alert-text { color: #e74c3c; font-weight: bold; margin-top: 8px; font-size: 14px; }
-        
-        .info-table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #161616; border-radius: 8px; overflow: hidden; }
-        .info-table th, .info-table td { border: 1px solid #222; padding: 12px; text-align: left; }
-        .info-table th { background-color: #800020; color: white; }
+        /* Typography */
+        h1 { font-size: 20px; font-weight: 700; margin: 0 0 4px 0; color: #fff; text-align: center; }
+        p.subtitle { font-size: 12px; color: #666; margin: 0 0 16px 0; text-align: center; }
+        .label { font-size: 11px; font-weight: 600; color: #666; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+        .value { font-size: 15px; font-weight: 500; color: #fff; }
+        .unit { font-size: 11px; color: #444; margin-left: 2px; }
 
-        /* Chat UI */
-        .chat-section { margin-top: 25px; border: 1px solid #222; border-radius: 12px; padding: 20px; background: #111; }
-        .chat-box { height: 180px; overflow-y: auto; border: 1px solid #222; padding: 12px; background: #161616; margin-bottom: 15px; border-radius: 6px; }
-        .chat-input-group { display: flex; gap: 10px; }
-        .chat-input-group input { flex: 1; text-align: left; }
-        .chat-btn { background: #800020; color: white; border: none; padding: 0 25px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        /* Status Badges */
+        .status-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+        .status-active { background-color: #10b981; box-shadow: 0 0 8px #10b981; }
+        .status-text { font-size: 12px; font-weight: 600; color: #10b981; display: flex; align-items: center; }
+
+        /* Controls */
+        .range-container { margin-bottom: 14px; }
+        .range-container:last-child { margin-bottom: 0; }
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: #1a1a1a;
+            height: 6px;
+            border-radius: 3px;
+            outline: none;
+            margin: 10px 0;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #fff;
+            cursor: pointer;
+            border: 3px solid #080808;
+            box-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+            transition: transform 0.1s;
+        }
+        input[type=range]::-webkit-slider-thumb:active { transform: scale(1.2); }
+
+        /* Chat Toggle & Container */
+        #chat-toggle {
+            background-color: #121212;
+            border: 1px solid #1a1a1a;
+            padding: 12px 16px;
+            border-radius: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: auto;
+            margin-bottom: env(safe-area-inset-bottom, 0px);
+        }
+        #chat-container {
+            display: none;
+            flex-direction: column;
+            background: #121212;
+            border: 1px solid #1a1a1a;
+            border-radius: 20px;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            top: 0;
+            z-index: 100;
+            padding: 16px;
+        }
+        #chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 12px;
+            padding-right: 4px;
+        }
+        .message {
+            margin-bottom: 10px;
+            padding: 10px 14px;
+            border-radius: 14px;
+            font-size: 13px;
+            line-height: 1.4;
+            max-width: 85%;
+            word-wrap: break-word;
+        }
+        .user-message { background: #1a1a1a; color: #fff; align-self: flex-end; margin-left: auto; border-bottom-right-radius: 4px; }
+        .bot-message { background: #1f1418; color: #fbcfe8; border: 1px solid #2e1822; align-self: flex-start; border-bottom-left-radius: 4px; }
+        
+        .chat-input-area { display: flex; gap: 8px; align-items: center; }
+        #chat-input {
+            flex: 1;
+            background: #1a1a1a;
+            border: 1px solid #262626;
+            padding: 12px 14px;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 13px;
+            outline: none;
+        }
+        #chat-input:focus { border-color: #444; }
+        .send-btn, .close-btn {
+            background: #1a1a1a;
+            border: 1px solid #262626;
+            color: #fff;
+            padding: 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .send-btn:active, .close-btn:active { background: #262626; }
+        
+        .typing-indicator { font-size: 11px; color: #444; font-style: italic; margin-left: 4px; display: none; }
     </style>
 </head>
 <body>
 
 <div id="app">
-    <h1 style="text-align:center; margin: 10px 0; color: #ffbf00;">🌸 Kesar Kheti (Pro Indoor Companion)</h1>
-    <p style="text-align:center; font-style:italic; color: #888; margin-top: -10px;">એડવાન્સ મોનિટરિંગ, સ્માર્ટ સાયકલ કેલ્ક્યુલેટર અને AI આસિસ્ટન્ટ</p>
-    <hr style="border: 1px solid #222; width: 100%;">
+    <div style="margin-top: env(safe-area-inset-top, 0px);">
+        <h1>🌸 Kesar Kheti</h1>
+        <p class="subtitle">Indoor Saffron Farming Companion</p>
+    </div>
 
-    <!-- ૧. સ્માર્ટ ક્રોપ સાયકલ કેલ્ક્યુલેટર -->
-    <div class="status-box">
-        <h3>📅 સ્માર્ટ ક્રોપ સાયકલ કેલ્ક્યુલેટર</h3>
-        <label for="plantingDate">બલ્બ ઇન્ડોર રૂમમાં ટ્રાન્સફર કર્યાની તારીખ:</label>
-        <input type="date" id="plantingDate" onchange="calculateCropStage()">
-        <div id="stageResult" style="margin-top: 15px; font-weight: bold; color: #fff; line-height: 1.6;">
-            તારીખ સેટ કરો, જેથી સિસ્ટમ આપોઆપ લાઈટ સ્પેક્ટ્રમ અને સ્ટેજ નક્કી કરી શકે.
+    <!-- Live Monitor -->
+    <div class="card">
+        <div class="flex" style="margin-bottom: 14px;">
+            <div class="label" style="margin:0;">Live Environment</div>
+            <div class="status-text"><span class="status-dot status-active"></span>Connected</div>
+        </div>
+        <div class="grid">
+            <div style="background:#171717; padding:12px; border-radius:12px; border:1px solid #1f1f1f;">
+                <div class="label">Temperature</div>
+                <div class="value" id="val-temp">16.0<span class="unit">°C</span></div>
+            </div>
+            <div style="background:#171717; padding:12px; border-radius:12px; border:1px solid #1f1f1f;">
+                <div class="label">Humidity</div>
+                <div class="value" id="val-hum">75<span class="unit">%</span></div>
+            </div>
         </div>
     </div>
 
-    <!-- ૨. રિયલ-ટાઇમ રૂમ પેરામીટર્સ -->
-    <h2 style="color: #ffbf00; font-size: 20px; margin-top: 10px;">📊 રિયલ-ટાઇમ સેન્સર ડેટા લોગિંગ</h2>
-    <div class="grid">
-        <div class="card" id="tempCard">
-            <label for="tempInput">🌡️ તાપમાન (°C)</label>
-            <input type="number" id="tempInput" value="16" step="0.1" oninput="validateParameters()">
-            <div id="tempAlert" class="alert-text"></div>
+    <!-- Simulation Controls -->
+    <div class="card">
+        <div class="label" style="margin-bottom:14px;">Simulation Controls</div>
+        
+        <div class="range-container">
+            <div class="flex">
+                <div class="value" style="font-size:13px; color:#aaa;">Target Temperature</div>
+                <div class="value" style="font-size:13px;" id="slider-temp-val">16.0°C</div>
+            </div>
+            <input type="range" id="slider-temp" min="10" max="25" step="0.5" value="16">
         </div>
-        <div class="card" id="humidityCard">
-            <label for="humidityInput">💧 હ્યુમિડિટી (%)</label>
-            <input type="number" id="humidityInput" value="75" oninput="validateParameters()">
-            <div id="humidityAlert" class="alert-text"></div>
-        </div>
-        <div class="card" id="co2Card">
-            <label for="co2Input">💨 CO₂ લેવલ (PPM)</label>
-            <input type="number" id="co2Input" value="500" oninput="validateParameters()">
-            <div id="co2Alert" class="alert-text"></div>
+
+        <div class="range-container">
+            <div class="flex">
+                <div class="value" style="font-size:13px; color:#aaa;">Target Humidity</div>
+                <div class="value" style="font-size:13px;" id="slider-hum-val">75%</div>
+            </div>
+            <input type="range" id="slider-hum" min="60" max="90" step="1" value="75">
         </div>
     </div>
 
-    <!-- 🛡️ વૈજ્ઞાનિક માર્ગદર્શિકા -->
-    <h2 style="color: #ffbf00; font-size: 20px; margin-top: 10px;">🛡️ વૈજ્ઞાનિક માર્ગદર્શિકા અને પ્રોટોકોલ</h2>
-    <table class="info-table">
-        <tr>
-            <th>પેરામીટર</th>
-            <th>આદર્શ ક્ષમતા / નિયમ</th>
-            <th>મહત્વની પ્રો-ટિપ (તકેદારી)</th>
-        </tr>
-        <tr>
-            <td><b>Corm Moisture (બલ્બ ભેજ)</b></td>
-            <td>૧૦% થી ૧૨%</td>
-            <td>વાવણી પહેલા રેન્ડમ બલ્બ ટેસ્ટ કરો. ૧૫% થી ઉપર જતાં ફૂગ નું જોખમ વધશે.</td>
-        </tr>
-        <tr>
-            <td><b>Air Velocity (હવાની ગતિ)</b></td>
-            <td>0.2 થી 0.5 m/s</td>
-            <td>રૂમમાં વેરિયેબલ ફેન વાપરો. સ્થિર હવાથી બલ્બ સડવાનો ભય રહે છે.</td>
-        </tr>
-        <tr>
-            <td><b>બીજ માવજત (Seed Treatment)</b></td>
-            <td>વાવણીના ૧૫ મિનિટ પહેલા</td>
-            <td>બલ્બને Carbendazim અથવા Mancozeb ફૂગનાશકથી ટ્રીટ કરીને જ રેકમાં ગોઠવો.</td>
-        </tr>
-    </table>
-
-    <!-- 🤖 AI આસિસ્ટન્ટ સેક્શન -->
-    <div class="chat-section">
-        <h3 style="color: #ffbf00; margin-top: 0;">🤖 કેસર ખેતી AI હેલ્પડેસ્ક</h3>
-        <div class="chat-box" id="chatBox">
-            <p style="color: #666; font-size: 14px;">Netlify ચેટ બોટ લાઈવ છે. તમારા પ્રશ્નો નીચે પૂછો...</p>
-        </div>
-        <div class="chat-input-group">
-            <input type="text" id="chatQuery" placeholder="દા.ત. બલ્બ પર ફૂગ દેખાય તો શું કરવું?">
-            <button class="chat-btn" onclick="askAiAssistant()">પૂછો</button>
+    <!-- Advice Card -->
+    <div class="card" style="background: #0d1510; border-color: #122216;">
+        <div class="label" style="color:#059669;">Agronomist Notice</div>
+        <div class="value" style="font-size:13px; color:#a7f3d0; line-height:1.4; font-weight:400; margin-top:4px;">
+            સચોટ માહિતી માટે હંમેશા Sardarkrushinagar Dantiwada Agricultural University (SDAU) અથવા સ્થાનિક Krishi Vigyan Kendra (KVK) નો સંપર્ક કરવો.
         </div>
     </div>
-    
-    <p style="text-align: center; margin-top: 20px; font-size: 13px; color: #555;">
-        સત્તાવાર કૃષિ સલાહ માટે Sardarkrushinagar Dantiwada Agricultural University (SDAU) અથવા સ્થાનિક KVK નો સંપર્ક રાખવો.
-    </p>
+
+    <!-- Chat Toggle -->
+    <div id="chat-toggle">
+        <div class="flex" style="gap:10px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <div class="value" style="font-size:13px; font-weight:600; color:#aaa;">Kesar Kheti Assistant</div>
+        </div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+
+    <!-- Chat Container -->
+    <div id="chat-container">
+        <div class="flex" style="margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid #1a1a1a;">
+            <div class="value" style="font-size:14px; font-weight:600;">Kesar Kheti AI</div>
+            <button class="close-btn" id="chat-close" style="padding:6px 10px; font-size:11px;">Close</button>
+        </div>
+        <div id="chat-messages" style="display:flex; flex-direction:column;">
+            <div class="message bot-message">નમસ્તે મહેશભાઈ, ઇન્ડોર કેસર સેટઅપ વિશે કંઈપણ પૂછો.</div>
+        </div>
+        <div class="typing-indicator" id="typing">Assistant is thinking...</div>
+        <div class="chat-input-area">
+            <input type="text" id="chat-input" placeholder="Ask a question..." autocomplete="off">
+            <button class="send-btn" id="chat-send">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+        </div>
+    </div>
 </div>
 
 <script>
+    // PWA Service Worker Registration
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js').catch(err => console.error(err));
+        navigator.serviceWorker.register('sw.js').catch(err => console.log(err));
     }
 
-    function validateParameters() {
-        const temp = parseFloat(document.getElementById('tempInput').value);
-        const humidity = parseFloat(document.getElementById('humidityInput').value);
-        const co2 = parseFloat(document.getElementById('co2Input').value);
+    // Simulation logic
+    const sTemp = document.getElementById('slider-temp');
+    const sHum = document.getElementById('slider-hum');
+    const vTemp = document.getElementById('val-temp');
+    const vHum = document.getElementById('val-hum');
+    const tTempVal = document.getElementById('slider-temp-val');
+    const tHumVal = document.getElementById('slider-hum-val');
 
-        handleAlert('tempCard', 'tempAlert', (temp < 10 || temp > 25), "⚠️ Alert: અસામાન્ય ઇન્ડોર તાપમાન!");
-        handleAlert('humidityCard', 'humidityAlert', (humidity < 65 || humidity > 85), "⚠️ Alert: હ્યુમિડિટી લેવલ જોખમી છે!");
-        handleAlert('co2Card', 'co2Alert', (co2 < 400 || co2 > 600), "⚠️ Alert: રૂમમાં CO₂ વેન્ટિલેશન જરૂરી છે!");
-    }
+    sTemp.addEventListener('input', (e) => {
+        const v = parseFloat(e.target.value).toFixed(1);
+        tTempVal.innerHTML = v + '°C';
+        vTemp.innerHTML = v + '<span class="unit">°C</span>';
+    });
 
-    function handleAlert(cardId, alertId, condition, message) {
-        const card = document.getElementById(cardId);
-        const alertEl = document.getElementById(alertId);
-        if (condition) { card.classList.add('alert-active'); alertEl.innerText = message; }
-        else { card.classList.remove('alert-active'); alertEl.innerText = ""; }
-    }
+    sHum.addEventListener('input', (e) => {
+        const v = e.target.value;
+        tHumVal.innerHTML = v + '%';
+        vHum.innerHTML = v + '<span class="unit">%</span>';
+    });
 
-    function calculateCropStage() {
-        const inputDate = document.getElementById('plantingDate').value;
-        if (!inputDate) return;
+    // Chat UI Toggle
+    const toggle = document.getElementById('chat-toggle');
+    const close = document.getElementById('chat-close');
+    const container = document.getElementById('chat-container');
+    
+    toggle.addEventListener('click', () => container.style.display = 'flex');
+    close.addEventListener('click', () => container.style.display = 'none');
 
-        const planting = new Date(inputDate);
-        const today = new Date();
-        const diffDays = Math.ceil(Math.abs(today - planting) / (1000 * 60 * 60 * 24));
+    // Netlify Function Chat Logic
+    const cInput = document.getElementById('chat-input');
+    const cSend = document.getElementById('chat-send');
+    const cMessages = document.getElementById('chat-messages');
+    const typing = document.getElementById('typing');
 
-        let stageHTML = `📅 <b>રૂમમાં વિતાવેલા કુલ દિવસો:</b> ${diffDays} દિવસ<br><br>`;
+    async function sendMessage() {
+        const text = cInput.value.trim();
+        if(!text) return;
 
-        if (diffDays <= 60) {
-            stageHTML += `🌱 <b>સ્ટેજ:</b> Dormancy & Incubation (સુષુપ્ત અવસ્થા)<br>🌡️ ૨૦°C થી ૨૪°C<br>💡 લાઈટિંગ: સંપૂર્ણ અંધારું (Dark Period).`;
-        } else if (diffDays <= 90) {
-            stageHTML += `⚡ <b>સ્ટેજ:</b> Thermal Shock Period (તાપમાનનો ઝાટકો)<br>🌡️ ૧૦°C થી ૧૨°C કરવું.<br>💡 લાઈટિંગ: કડક ૧૧ કલાક અંધારું.`;
-        } else if (diffDays <= 120) {
-            stageHTML += `🌸 <b>સ્ટેજ:</b> Flower Blooming & Harvest<br>🌡️ ૧૫°C થી ૧૭°C સ્ટેબલ.<br>💡 લાઈટિંગ: <span style="color:#e74c3c; font-weight:bold;">660 nm Red Light</span> ચાલુ કરો.`;
-        } else if (diffDays <= 180) {
-            stageHTML += `🌿 <b>સ્ટેજ:</b> Post-Bloom Growth<br>🌡️ ૧૮°C થી ૨૦°C<br>💡 લાઈટિંગ: <span style="color:#3498db; font-weight:bold;">450 nm Blue Light</span> આપો.`;
-        } else {
-            stageHTML += `🏁 <b>૧૮૦ દિવસ પૂર્ણ!</b>`;
-        }
-        document.getElementById('stageResult').innerHTML = stageHTML;
-    }
+        // Append user message
+        cMessages.innerHTML += `<div class="message user-message">${text}</div>`;
+        cInput.value = '';
+        cMessages.scrollTop = cMessages.scrollHeight;
 
-    async function askAiAssistant() {
-        const queryInput = document.getElementById('chatQuery');
-        const chatBox = document.getElementById('chatBox');
-        const query = queryInput.value.trim();
-        
-        if (!query) return;
-
-        chatBox.innerHTML += `<p style="color:#fff;"><b>તમે:</b> ${query}</p>`;
-        queryInput.value = "";
+        // Show typing
+        typing.style.display = 'block';
 
         try {
-            const response = await fetch('/.netlify/functions/chat', {
+            const res = await fetch('/.netlify/functions/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ question: query })
+                body: JSON.stringify({ question: text })
             });
-            const data = await response.json();
-            chatBox.innerHTML += `<p style="color: #ffbf00;"><b>AI આસિસ્ટન્ટ:</b> ${data.reply}</p>`;
-        } catch (err) {
-            chatBox.innerHTML += `<p style="color: #666;"><b>AI બોટ:</b> હજુ બેકએન્ડ ફંક્શન ડિપ્લોય થઈ રહ્યું છે, થોડીવાર પછી ટ્રાય કરો.</p>`;
+            const data = await res.json();
+            typing.style.display = 'none';
+            cMessages.innerHTML += `<div class="message bot-message">${data.reply}</div>`;
+        } catch(e) {
+            typing.style.display = 'none';
+            cMessages.innerHTML += `<div class="message bot-message" style="color:#ef4444;">Error connecting to Netlify function.</div>`;
         }
-        chatBox.scrollTop = chatBox.scrollHeight;
+        cMessages.scrollTop = cMessages.scrollHeight;
     }
 
-    window.onload = function() { validateParameters(); };
+    cSend.addEventListener('click', sendMessage);
+    cInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') sendMessage(); });
 </script>
 </body>
 </html>
